@@ -1,0 +1,37 @@
+plugins {
+    id 'fabric-loom' version '1.8-SNAPSHOT'
+}
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+version = "${project.mod_version}"
+group = "${project.maven_group}"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    implementation 'net.kyori:adventure-text-minimessage:4.17.0'
+    modImplementation 'net.kyori:adventure-platform-fabric:5.14.1'
+    modImplementation include("me.neovitalism:NeoAPI:${project.neo_api_version}")
+    compileOnly 'net.luckperms:api:5.4'
+}
+
+Map<String, String> resourceProperties = new HashMap<>()
+resourceProperties.put("version", (String) project.version)
+resourceProperties.put("loader_version", project.loader_version)
+resourceProperties.put("minecraft_version", project.minecraft_version)
+resourceProperties.put("neo_api_version", project.neo_api_version)
+
+processResources {
+    filesMatching("fabric.mod.json") {
+        expand resourceProperties
+    }
+}

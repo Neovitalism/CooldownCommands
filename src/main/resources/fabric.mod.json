@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "cooldowncommands",
+  "version": "${version}",
+
+  "name": "CooldownCommands",
+  "description": "A mod used to manage cooldowns on specific commands.",
+  "authors": [
+    "Neovitalism"
+  ],
+  "contact": {
+    "homepage": "https://discord.gg/fQXCccxMrD"
+  },
+
+  "license": "MIT",
+  "_icon": "assets/cooldowncommands/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.neovitalism.cooldowncommands.CooldownCommands"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "neoapi": ">=${neo_api_version}",
+    "luckperms": ">=5.4.139"
+  },
+
+  "mixins": [
+    "cooldowncommands.mixins.json"
+  ]
+}

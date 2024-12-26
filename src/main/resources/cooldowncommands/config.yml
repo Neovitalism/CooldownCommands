@@ -1,0 +1,7 @@
+cooldowns:
+  clear:
+    cooldown-seconds: 300
+    cooldown-message: "&c<bold>(!)</bold> This command is on cooldown for another {time-formatted}."
+  levelup:
+    cooldown-seconds: 600
+    cooldown-message: "&c<bold>(!)</bold> This command is on cooldown for another {time-formatted}."
