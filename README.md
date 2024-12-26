@@ -25,7 +25,7 @@ For rank or player specific cooldowns, you may set the meta `cooldowncommands.[k
 Example: `/lp user Neovitalism meta set cooldowncommands.levelup.cooldown 30`
   
 To bypass cooldowns, give the permission `cooldowncommands.[key].bypass`.  
-Example: `/lp user Neovitalism permission set cooldowncommands.levelup.cooldown`  
+Example: `/lp user Neovitalism permission set cooldowncommands.levelup.bypass`  
 
 Cooldowns are saved through LuckPerms, so to clear a cooldown, unset the temporary meta `cooldowncommands.[key].on-cooldown`.  
 Example: `/lp user Neovitalism meta unsettemp cooldowncommands.levelup.on-cooldown`
