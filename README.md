@@ -21,7 +21,7 @@ cooldowns:
     ...
 ```
 
-For rank or player specific cooldowns, you may set the meta `cooldowncommands.[key].cooldown` with the amount of seconds.  
+For rank or player specific cooldowns, set the meta `cooldowncommands.[key].cooldown` with the amount of seconds.  
 Example: `/lp user Neovitalism meta set cooldowncommands.levelup.cooldown 30`
   
 To bypass cooldowns, give the permission `cooldowncommands.[key].bypass`.  
