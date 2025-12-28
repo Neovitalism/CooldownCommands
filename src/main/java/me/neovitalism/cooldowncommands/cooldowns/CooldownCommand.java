@@ -1,16 +1,15 @@
 package me.neovitalism.cooldowncommands.cooldowns;
 
-import me.neovitalism.cooldowncommands.CooldownCommands;
+import me.neovitalism.cooldowncommands.storage.CooldownStoreManager;
+import me.neovitalism.cooldowncommands.storage.PlayerCooldownStore;
+import me.neovitalism.neoapi.NeoAPI;
 import me.neovitalism.neoapi.config.Configuration;
 import me.neovitalism.neoapi.permissions.NeoPermission;
 import me.neovitalism.neoapi.utils.ColorUtil;
 import me.neovitalism.neoapi.utils.StringUtil;
 import me.neovitalism.neoapi.utils.TimeUtil;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.types.MetaNode;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -20,16 +19,20 @@ public class CooldownCommand {
     private final String cooldownMessage;
 
     public CooldownCommand(String key, Configuration config) {
-        this.key = key;
+        this.key = key.replace(" ", "_");
         this.defaultCooldown = config.getLong("cooldown-seconds");
         this.cooldownMessage = config.getString("cooldown-message");
     }
 
-    private long getCooldown(ServerPlayerEntity player) {
-        MetaNode meta = CooldownCommands.getMetaNode(player, this.permission("cooldown"));
-        if (meta == null) return this.defaultCooldown;
+    public String getKey() {
+        return this.key;
+    }
+
+    private long getCooldownTime(ServerPlayerEntity player) {
+        String cooldownTime = NeoAPI.getPermissionProvider().getMetaValue(player, this.permission("cooldown"));
+        if (cooldownTime == null) return this.defaultCooldown;
         try {
-            return Long.parseLong(meta.getMetaValue());
+            return Long.parseLong(cooldownTime);
         } catch (NumberFormatException e) {
             return this.defaultCooldown;
         }
@@ -37,20 +40,19 @@ public class CooldownCommand {
 
     public boolean checkCooldown(ServerPlayerEntity player) {
         if (NeoPermission.of(this.permission("bypass")).matches(player)) return false;
-        MetaNode meta = CooldownCommands.getMetaNode(player, this.permission("on-cooldown"));
-        if (meta == null) return false;
-        Duration expiryDuration = meta.getExpiryDuration();
-        long seconds = (expiryDuration != null) ? expiryDuration.getSeconds() : -1;
-        String message = StringUtil.replaceReplacements(this.cooldownMessage, Map.of("{time-formatted}", TimeUtil.getFormattedTime(seconds)));
+        PlayerCooldownStore cooldownStore = CooldownStoreManager.getStore(player.getUuid());
+        long endTime = cooldownStore.getCooldownExpiry(this.key);
+        if (endTime <= 0) return false;
+        long secondsLeft = TimeUnit.MILLISECONDS.toSeconds(endTime - System.currentTimeMillis());
+        String message = StringUtil.replaceReplacements(this.cooldownMessage, Map.of("{time-formatted}", TimeUtil.getFormattedTime(secondsLeft)));
         if (message != null) player.sendMessage(ColorUtil.parseColour(message));
         return true;
     }
 
     public void markOnCooldown(ServerPlayerEntity player) {
         if (NeoPermission.of(this.permission("bypass")).matches(player)) return;
-        User user = CooldownCommands.getLuckPermsUser(player);
-        user.data().add(MetaNode.builder(this.permission("on-cooldown"), "true").expiry(this.getCooldown(player), TimeUnit.SECONDS).build());
-        CooldownCommands.saveUser(user);
+        PlayerCooldownStore cooldownStore = CooldownStoreManager.getStore(player.getUuid());
+        cooldownStore.markCooldown(this.key, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(this.getCooldownTime(player)));
     }
 
     private String permission(String suffix) {

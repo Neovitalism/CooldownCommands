@@ -1,18 +1,17 @@
 package me.neovitalism.cooldowncommands;
 
 import me.neovitalism.cooldowncommands.cooldowns.CooldownManager;
+import me.neovitalism.cooldowncommands.cooldowns.LegacyCooldownHelper;
+import me.neovitalism.cooldowncommands.storage.CooldownStoreManager;
+import me.neovitalism.cooldowncommands.storage.PlayerCooldownStore;
 import me.neovitalism.neoapi.modloading.NeoMod;
 import me.neovitalism.neoapi.modloading.command.CommandRegistryInfo;
 import me.neovitalism.neoapi.modloading.command.ReloadCommand;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.types.MetaNode;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 public class CooldownCommands extends NeoMod {
-    private static LuckPerms luckPermsAPI;
+    private static CooldownCommands instance;
+    private static final CooldownStoreManager storeManager = new CooldownStoreManager();
 
     @Override
     public String getModID() {
@@ -27,7 +26,21 @@ public class CooldownCommands extends NeoMod {
     @Override
     public void onInitialize() {
         super.onInitialize();
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> CooldownCommands.luckPermsAPI = LuckPermsProvider.get());
+        CooldownCommands.instance = this;
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            PlayerCooldownStore cached = CooldownStoreManager.getStore(handler.getPlayer().getUuid());
+            LegacyCooldownHelper.transformLegacy(handler.getPlayer(), cached);
+        });
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            CooldownCommands.storeManager.logout(handler.getPlayer().getUuid());
+        });
+    }
+
+    @Override
+    public void onServerStart() {
+        super.onServerStart();
+        CooldownCommands.storeManager.load();
+        LegacyCooldownHelper.init();
     }
 
     @Override
@@ -40,15 +53,7 @@ public class CooldownCommands extends NeoMod {
         new ReloadCommand(this, info.getDispatcher(), "cooldowncommands");
     }
 
-    public static User getLuckPermsUser(ServerPlayerEntity player) {
-        return CooldownCommands.luckPermsAPI.getPlayerAdapter(ServerPlayerEntity.class).getUser(player);
-    }
-
-    public static void saveUser(User user) {
-        CooldownCommands.luckPermsAPI.getUserManager().saveUser(user);
-    }
-
-    public static MetaNode getMetaNode(ServerPlayerEntity player, String permission) {
-        return CooldownCommands.luckPermsAPI.getPlayerAdapter(ServerPlayerEntity.class).getMetaData(player).queryMetaValue(permission).node();
+    public static CooldownCommands inst() {
+        return CooldownCommands.instance;
     }
 }

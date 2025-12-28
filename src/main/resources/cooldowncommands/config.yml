@@ -5,3 +5,13 @@ cooldowns:
   levelup:
     cooldown-seconds: 600
     cooldown-message: "&c<bold>(!)</bold> This command is on cooldown for another {time-formatted}."
+
+# CHANGES TO THIS SECTION REQUIRE A RESTART.
+# SWAPPING FROM YAML TO MARIADB WILL MOVE ALL DATA ON STARTUP.
+storage:
+  storage-type: YAML # YAML, MARIADB
+  sql:
+    database: "neo_mods"
+    address: "localhost:3306"
+    username: "root"
+    password: ""

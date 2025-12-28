@@ -5,6 +5,7 @@ import me.neovitalism.neoapi.config.Configuration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class CooldownManager {
     private static final Map<String, CooldownCommand> COMMAND_COOLDOWNS = new HashMap<>();
@@ -19,6 +20,10 @@ public class CooldownManager {
             if (section == null) continue;
             CooldownManager.COMMAND_COOLDOWNS.put(lowercase, new CooldownCommand(lowercase, section));
         }
+    }
+
+    protected static Set<Map.Entry<String, CooldownCommand>> entrySet() {
+        return CooldownManager.COMMAND_COOLDOWNS.entrySet();
     }
 
     public static CooldownCommand getCooldownCommand(String usedCommand) {
