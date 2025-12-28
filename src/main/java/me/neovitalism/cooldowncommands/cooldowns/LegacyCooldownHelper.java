@@ -9,7 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import java.time.Duration;
 import java.util.Map;
 
-public class LegacyCooldownHelper { // ToDo: remove come 2.1
+public class LegacyCooldownHelper { // ToDo: remove come 2.2
     private static LuckPerms luckPermsAPI;
 
     public static void init() {

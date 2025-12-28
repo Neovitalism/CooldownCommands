@@ -33,7 +33,7 @@ public abstract class CommandManagerMixin {
         if (cooldownCommand.checkCooldown(player)) return;
         try {
             int result = NeoAPI.getServer().getCommandManager().getDispatcher().execute(parseResults);
-            if (result > 0) cooldownCommand.markOnCooldown(player);
+            if (result > 0) cooldownCommand.markOnCooldown(player, false);
         } catch (CommandSyntaxException e) {
             player.sendMessage(ColorUtil.parseColour("<red>" + e.getMessage()));
         }

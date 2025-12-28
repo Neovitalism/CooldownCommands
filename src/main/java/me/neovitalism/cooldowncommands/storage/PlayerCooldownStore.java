@@ -25,13 +25,18 @@ public class PlayerCooldownStore {
 
     public long getCooldownExpiry(String command) {
         boolean success = this.cooldowns.entrySet().removeIf(cd -> cd.getValue() < System.currentTimeMillis());
-        if (success) CooldownStoreManager.markToSave(this);
+        if (success) this.markDirty();
         return this.cooldowns.getOrDefault(command, -1L);
     }
 
     public void markCooldown(String command, long expiryTime) {
         this.cooldowns.put(command, expiryTime);
-        CooldownStoreManager.markToSave(this);
+        this.markDirty();
+    }
+
+    public void removeCooldown(String command) {
+        this.cooldowns.remove(command);
+        this.markDirty();
     }
 
     public Configuration serialize() {
@@ -40,5 +45,9 @@ public class PlayerCooldownStore {
             config.set(entry.getKey(), entry.getValue());
         }
         return config;
+    }
+
+    private void markDirty() {
+        CooldownStoreManager.markToSave(this);
     }
 }

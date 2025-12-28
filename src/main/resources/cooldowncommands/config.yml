@@ -6,6 +6,12 @@ cooldowns:
     cooldown-seconds: 600
     cooldown-message: "&c<bold>(!)</bold> This command is on cooldown for another {time-formatted}."
 
+lang:
+  prefix: "&#696969[&#7E50C7C&#8054C2o&#8159BDo&#835DB8l&#8562B3d&#8666AEo&#886BA9w&#8A6FA4n&#8B749FC&#8D789Ao&#8F7D95m&#908190m&#92868Ba&#948A86n&#958F81d&#97937Cs&#696969]&f "
+  invalid-command: "&cThere is no cooldown defined for this command. Please add it to the config or use one from tab-complete."
+  placed-cooldown: "&aSuccessfully placed a cooldown on the command '/{command}' for {time-formatted} on {player}."
+  removed-cooldown: "&aSuccessfully removed {player}{s} cooldown on '/{command}'."
+
 # CHANGES TO THIS SECTION REQUIRE A RESTART.
 # SWAPPING FROM YAML TO MARIADB WILL MOVE ALL DATA ON STARTUP.
 storage:

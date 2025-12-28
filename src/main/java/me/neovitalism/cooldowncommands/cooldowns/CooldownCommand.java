@@ -49,10 +49,12 @@ public class CooldownCommand {
         return true;
     }
 
-    public void markOnCooldown(ServerPlayerEntity player) {
-        if (NeoPermission.of(this.permission("bypass")).matches(player)) return;
+    public long markOnCooldown(ServerPlayerEntity player, boolean forced) {
+        if (!forced && NeoPermission.of(this.permission("bypass")).matches(player)) return -1;
         PlayerCooldownStore cooldownStore = CooldownStoreManager.getStore(player.getUuid());
-        cooldownStore.markCooldown(this.key, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(this.getCooldownTime(player)));
+        long cooldownTime = this.getCooldownTime(player);
+        cooldownStore.markCooldown(this.key, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cooldownTime));
+        return cooldownTime;
     }
 
     private String permission(String suffix) {

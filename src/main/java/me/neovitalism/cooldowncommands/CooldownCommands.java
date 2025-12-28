@@ -1,9 +1,13 @@
 package me.neovitalism.cooldowncommands;
 
+import me.neovitalism.cooldowncommands.commands.PlaceCooldownCommand;
+import me.neovitalism.cooldowncommands.commands.RemoveCooldownCommand;
 import me.neovitalism.cooldowncommands.cooldowns.CooldownManager;
 import me.neovitalism.cooldowncommands.cooldowns.LegacyCooldownHelper;
 import me.neovitalism.cooldowncommands.storage.CooldownStoreManager;
 import me.neovitalism.cooldowncommands.storage.PlayerCooldownStore;
+import me.neovitalism.neoapi.config.Configuration;
+import me.neovitalism.neoapi.lang.LangManager;
 import me.neovitalism.neoapi.modloading.NeoMod;
 import me.neovitalism.neoapi.modloading.command.CommandRegistryInfo;
 import me.neovitalism.neoapi.modloading.command.ReloadCommand;
@@ -11,7 +15,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 public class CooldownCommands extends NeoMod {
     private static CooldownCommands instance;
-    private static final CooldownStoreManager storeManager = new CooldownStoreManager();
+    private static CooldownStoreManager storeManager;
+    private static LangManager langManager;
 
     @Override
     public String getModID() {
@@ -27,6 +32,7 @@ public class CooldownCommands extends NeoMod {
     public void onInitialize() {
         super.onInitialize();
         CooldownCommands.instance = this;
+        CooldownCommands.storeManager = new CooldownStoreManager();
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             PlayerCooldownStore cached = CooldownStoreManager.getStore(handler.getPlayer().getUuid());
             LegacyCooldownHelper.transformLegacy(handler.getPlayer(), cached);
@@ -45,15 +51,23 @@ public class CooldownCommands extends NeoMod {
 
     @Override
     public void configManager() {
-        CooldownManager.reload(this.getConfig("config.yml", true));
+        Configuration config = this.getConfig("config.yml", true);
+        CooldownManager.reload(config);
+        CooldownCommands.langManager = config.getLangManager("lang", false);
     }
 
     @Override
     public void registerCommands(CommandRegistryInfo info) {
         new ReloadCommand(this, info.getDispatcher(), "cooldowncommands");
+        new PlaceCooldownCommand(info.getDispatcher());
+        new RemoveCooldownCommand(info.getDispatcher());
     }
 
     public static CooldownCommands inst() {
         return CooldownCommands.instance;
+    }
+
+    public static LangManager getLangManager() {
+        return CooldownCommands.langManager;
     }
 }
