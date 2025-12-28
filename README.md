@@ -11,6 +11,8 @@ cooldowns:
     cooldown-seconds: 600
     # The message given when the player is on cooldown.
     cooldown-message: "&c<bold>(!)</bold> This command is on cooldown for another {time-formatted}."
+    # Whether or not the cooldown applies on use of the command, or only via /placecooldown.
+    applies-on-use: true
 ```
 This config will look for any usage of the `/levelup` command provided by Cobblemon.  
   

@@ -17,11 +17,13 @@ public class CooldownCommand {
     private final String key;
     private final long defaultCooldown;
     private final String cooldownMessage;
+    private final boolean appliesOnUse;
 
     public CooldownCommand(String key, Configuration config) {
         this.key = key.replace(" ", "_");
         this.defaultCooldown = config.getLong("cooldown-seconds");
         this.cooldownMessage = config.getString("cooldown-message");
+        this.appliesOnUse = config.getBoolean("applies-on-use", true);
     }
 
     public String getKey() {
@@ -39,7 +41,7 @@ public class CooldownCommand {
     }
 
     public boolean checkCooldown(ServerPlayerEntity player) {
-        if (NeoPermission.of(this.permission("bypass")).matches(player)) return false;
+        if (this.bypassesCooldown(player)) return false;
         PlayerCooldownStore cooldownStore = CooldownStoreManager.getStore(player.getUuid());
         long endTime = cooldownStore.getCooldownExpiry(this.key);
         if (endTime <= 0) return false;
@@ -49,8 +51,8 @@ public class CooldownCommand {
         return true;
     }
 
-    public long markOnCooldown(ServerPlayerEntity player, boolean forced) {
-        if (!forced && NeoPermission.of(this.permission("bypass")).matches(player)) return -1;
+    public long markOnCooldown(ServerPlayerEntity player) {
+        if (this.bypassesCooldown(player)) return -1;
         PlayerCooldownStore cooldownStore = CooldownStoreManager.getStore(player.getUuid());
         long cooldownTime = this.getCooldownTime(player);
         cooldownStore.markCooldown(this.key, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(cooldownTime));
@@ -59,5 +61,13 @@ public class CooldownCommand {
 
     private String permission(String suffix) {
         return "cooldowncommands." + this.key + "." + suffix;
+    }
+
+    public boolean bypassesCooldown(ServerPlayerEntity player) {
+        return NeoPermission.of(this.permission("bypass")).matches(player);
+    }
+
+    public boolean appliesOnUse() {
+        return this.appliesOnUse;
     }
 }

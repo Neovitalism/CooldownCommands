@@ -63,9 +63,13 @@ public class PlaceCooldownCommand extends CommandBase {
         Map<String, String> replacements = new HashMap<>();
         replacements.put("{player}", player.getName().getString());
         replacements.put("{command}", commandID);
+        if (command.bypassesCooldown(player)) {
+            CooldownCommands.getLangManager().sendLang(source, "bypasses-cooldown", replacements);
+            return 0;
+        }
         long time;
         if (seconds == -1) {
-            time = command.markOnCooldown(player, true);
+            time = command.markOnCooldown(player);
         } else {
             time = seconds;
             CooldownStoreManager.getStore(player.getUuid()).markCooldown(
